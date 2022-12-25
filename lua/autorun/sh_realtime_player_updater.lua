@@ -54,7 +54,8 @@ if (SERVER) then
         actions[ BODYGROUPS ] = function( ply )
             local groups = ply:GetInfo( "cl_playerbodygroups" )
             if (groups == nil) then groups = "" end
-            local groups = string_Explode( " ", groups )
+            groups = string_Explode( " ", groups )
+
             for k = 0, ply:GetNumBodyGroups() - 1 do
                 ply:SetBodygroup( k, tonumber( groups[ k + 1 ] ) or 0 )
             end
@@ -83,7 +84,6 @@ end
 if (CLIENT) then
 
     local net_SendToServer = net.SendToServer
-    local net_WriteString = net.WriteString
     local net_WriteUInt = net.WriteUInt
     local timer_Create = timer.Create
     local net_Start = net.Start
