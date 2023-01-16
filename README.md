@@ -1,2 +1,3 @@
-# gmod_realtime_player_updater
+# Realtime Player Updater
  Allows update your model, skin, bodygroups & weapon color in realtime!
+
