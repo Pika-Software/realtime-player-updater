@@ -68,8 +68,8 @@ if (SERVER) then
             if (groups == nil) then groups = '' end
             groups = string_Explode( ' ', groups )
 
-            for k = 0, ply:GetNumBodyGroups() - 1 do
-                ply:SetBodygroup( k, tonumber( groups[ k + 1 ] ) or 0 )
+            for group = 0, ply:GetNumBodyGroups() - 1 do
+                ply:SetBodygroup( group, tonumber( groups[ group + 1 ] ) or 0 )
             end
         end
 
