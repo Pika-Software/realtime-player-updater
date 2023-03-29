@@ -22,11 +22,11 @@ if (SERVER) then
 
     util.AddNetworkString( addonName )
 
-    local actions = {
-        [ SKIN ] = function( ply )
-            ply:SetSkin( ply:GetInfoNum( 'cl_playerskin', 0 ) )
-        end
-    }
+    local actions = {}
+
+    actions[ SKIN ] = function( ply )
+        ply:SetSkin( ply:GetInfoNum( 'cl_playerskin', 0 ) )
+    end
 
     do
 
@@ -35,7 +35,7 @@ if (SERVER) then
 
         actions[ WEAPON_COLOR ] = function( ply )
             local col = Vector( ply:GetInfo( 'cl_weaponcolor' ) )
-            ply:SetWeaponColor( (col:Length() < 0.001) and zero_color or col )
+            ply:SetWeaponColor( ( col:Length() < 0.001 ) and zero_color or col )
         end
 
         actions[ COLOR ] = function( ply )
@@ -47,12 +47,10 @@ if (SERVER) then
     do
 
         local player_manager_TranslatePlayerModel = player_manager.TranslatePlayerModel
-        local util_PrecacheModel = util.PrecacheModel
+        local Model = Model
 
         actions[ PLAYERMODEL ] = function( ply )
-            local modelname = player_manager_TranslatePlayerModel( ply:GetInfo( 'cl_playermodel' ) )
-            util_PrecacheModel( modelname )
-            ply:SetModel( modelname )
+            ply:SetModel( Model( player_manager_TranslatePlayerModel( ply:GetInfo( 'cl_playermodel' ) ) ) )
             ply:SetupHands()
         end
 
@@ -76,17 +74,20 @@ if (SERVER) then
     end
 
     do
+
         local net_ReadUInt = net.ReadUInt
-        net.Receive(addonName, function( len, ply )
+
+        net.Receive( addonName, function( len, ply )
             if not ply:Alive() then return end
 
             local action = actions[ net_ReadUInt( 3 ) ]
             if (action == nil) then return end
 
-            timer_Create(addonName .. '_timer', 0.025, 1, function()
+            timer_Create( addonName .. ply:EntIndex(), 0.025, 1, function()
                 action( ply )
-            end)
-        end)
+            end )
+        end )
+
     end
 
 end
@@ -99,11 +100,11 @@ if (CLIENT) then
 
     local function getPlayerUpdateCallback( dataType )
         return function( cvarName, oldValue, newValue )
-            timer_Create(cvarName .. '_update', 0.025, 1, function()
+            timer_Create( addonName .. ' - ' .. cvarName, 0.025, 1, function()
                 net_Start( addonName )
                     net_WriteUInt( dataType, 3 )
                 net_SendToServer()
-            end)
+            end )
         end
     end
 
