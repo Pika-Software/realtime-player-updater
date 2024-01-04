@@ -1,5 +1,6 @@
 :lower = string
 :Run = hook
+net = net
 
 if SERVER
     util.AddNetworkString "RPU::Network"
