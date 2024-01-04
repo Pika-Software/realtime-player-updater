@@ -20,4 +20,4 @@ Called after the RPU is fully loaded, the first argument is [rui.Register](#rpur
 Called before the callback is executed and allows you to block it by returning false here.
 
 #### GM:RPUChanged( `Player` ply, `string` conVarName, `string` value )
-Called after `RPUChange`, additional network data can be written here on the client side, which can be obtained in `RPUChange` and `RPUChanged` on the server side using the [net](https://wiki.facepunch.com/gmod/net) library.
+Called after `RPUChange`, additional network data can be written here on the client side, which can be read in `RPUChange` and `RPUChanged` on the server side using [net](https://wiki.facepunch.com/gmod/net) library.
