@@ -1,0 +1,106 @@
+:lower = string
+:Run = hook
+
+if SERVER
+    util.AddNetworkString "RPU::Network"
+
+module "rpu", package.seeall
+register = nil
+
+if CLIENT
+
+    ErrorNoHaltWithStack = ErrorNoHaltWithStack
+    :Start, :WriteString, :SendToServer = net
+    :AddChangeCallback = cvars
+    LocalPlayer = LocalPlayer
+    xpcall = xpcall
+
+    register = ( name, func ) ->
+        name = lower( name )
+
+        AddChangeCallback( name, ( _, __, value ) ->
+            ply = LocalPlayer!
+            unless ply and ply\IsValid!
+                return
+
+            if Run( "RPUChange", ply, name, value ) == false
+                return
+
+            Start "RPU::Network"
+            WriteString name
+            WriteString value
+
+            xpcall( Run, ErrorNoHaltWithStack, "RPUChanged", ply, name, value )
+
+            SendToServer!
+
+            unless func
+                return
+
+            func( ply, value )
+
+        "RPU::ConVar" )
+
+    register "cl_playerbodygroups"
+    register "cl_playermodel"
+    register "cl_playerskin"
+
+    register "cl_playercolor"
+    register "cl_weaponcolor"
+
+else
+
+    :ReadString = net
+
+    receivers = {}
+    global Receivers = receivers
+
+    net.Receive "RPU::Network", ( _, ply ) ->
+        name = ReadString!
+
+        func = receivers[ name ]
+        unless func
+            return
+
+        value = ReadString!
+
+        if Run( "RPUChange", ply, name, value ) == false
+            return
+
+        func( ply, value )
+        Run( "RPUChanged", ply, name, value )
+
+    register = ( name, func ) ->
+        receivers[ lower( name ) ] = func
+
+    do
+
+        func = ( value ) =>
+            Run( "PlayerSetModel", @, value )
+            @SetupHands!
+
+        register "cl_playerbodygroups", func
+        register "cl_playermodel", func
+        register "cl_playerskin", func
+
+    do
+
+        Vector = Vector
+
+        register "cl_playercolor", ( value ) =>
+            @SetPlayerColor( Vector( value ) )
+
+        do
+
+            default = Vector( 0.001, 0.001, 0.001 )
+            register "cl_weaponcolor", ( value ) =>
+                color = Vector( value )
+                @SetWeaponColor( color\Length! < 0.001 and default or color )
+
+global Register = register
+
+hook.Add "RPUChange", "RPU::Alive Only", =>
+    unless @Alive!
+        return false
+
+Run( "RPULoaded", register )
