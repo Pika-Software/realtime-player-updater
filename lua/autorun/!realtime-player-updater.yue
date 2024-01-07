@@ -76,13 +76,13 @@ else
 
     do
 
-        func = ( value ) =>
-            Run( "PlayerSetModel", @, value )
+        setupModel = =>
+            Run( "PlayerSetModel", @ )
             @SetupHands!
 
-        register "cl_playerbodygroups", func
-        register "cl_playermodel", func
-        register "cl_playerskin", func
+        register "cl_playerbodygroups", setupModel
+        register "cl_playermodel", setupModel
+        register "cl_playerskin", setupModel
 
     do
 
@@ -90,6 +90,7 @@ else
 
         register "cl_playercolor", ( value ) =>
             @SetPlayerColor( Vector( value ) )
+            @SetupHands!
 
         do
 
